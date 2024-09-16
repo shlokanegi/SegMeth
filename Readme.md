@@ -18,11 +18,10 @@ As such, methylation array values range between [-100, 100].
 2. We perform CBS and validation same as before. Next, our threshold-based labelling for delta methylation is the following:- (| methylation mean | > meth_thresh) is labelled as allele specific methylated, elsewhere, we label it as unmethylated. The remaining segment merging remains the same, and the segmentation output file is created.
 
 
-# Usage 
-
+# Usage
 A command line option is to run the following: -
 
-## `haplotype-specific` mode (for detecting "methylated" and "unmethylated" segments per haplotype)-
+## `haplotype-specific` mode (for detecting "methylated" and "unmethylated" segments per haplotype) -
 ```py
 python scripts/cbs_delta.py -file test/HG002_1.chr20.bed -file2 test/HG002_2.chr20.bed -o HG002_delta_chr20_segments_out.bed -p 1e-3 -s HG002 -tfile test/targets.bed -ut -70 -mt 70 -delta yes
 ```
@@ -41,7 +40,6 @@ SegMeth is also available as a WDL on [dockstore](a link).
 The `runsegmeth` task of the workflow uses the [quay.io/repository/shnegi/segmeth](quay.io/repository/shnegi/segmeth). It includes both haplotype-specific and delta segmentation scripts (available at `/opt/scripts/SegMeth-v1.0/cbs_hp.py` and `/opt/scripts/SegMeth-v1.0/cbs_delta.py` respectively in the container). It also contains the segment intersection (`/opt/scripts/SegMeth-v1.0/segment_intersection.py`) script to intersect segments across multiple samples to generate a consistent set for performing DMR analysis.
 
 # Input Parameters
-
 ## `haplotype-specific` mode
 ```
 root@3a1373fe279d:/home# python3 /opt/scripts/SegMeth-v1.0/cbs_hp.py --help
@@ -90,7 +88,6 @@ miniwdl run --as-me -i test.inputs.json wdl/workflow.wdl
 
 ## Test with Toil
 toil-wdl-runner wdl/workflow.wdl --inputs test.inputs.json
-
 ```
 # Outputs
 
