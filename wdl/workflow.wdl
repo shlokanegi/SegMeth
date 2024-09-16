@@ -4,7 +4,7 @@ workflow SegMeth {
     meta {
 		author: "Shloka Negi"
 		email: "shnegi@ucsc.edu"
-		description: "Segmentation of methylome using circular binary segmentation (CBS). By default, runs whole-genome."
+		description: "Segmentation of methylome using circular binary segmentation. By default, runs whole-genome."
 		}
 
 	parameter_meta {
