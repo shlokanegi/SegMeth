@@ -44,36 +44,43 @@ The `runsegmeth` task of the workflow uses the [quay.io/repository/shnegi/segmet
 
 ## `haplotype-specific` mode
 ```
-python3 scripts/cbs_hp.py --help
-usage: cbs_hp.py [-h] -file  -o  [-p] -s  -tfile  [-ut] [-mt] [-minCG] [-filt_thresh] [-plot]
+root@3a1373fe279d:/home# python3 /opt/scripts/SegMeth-v1.0/cbs_hp.py --help
+usage: cbs_hp.py [-h] -file  -o  [-p] -s  -tfile  [-ut] [-mt] [-minCG] [-filt_thresh] [-plot] [-merge]
 
-    -file,  input mokdit bedMethyl pileup
-    -o, output file name, to be populated with intersected segments
-    -s, sample name
-    -tfile, target file name for generating segments in
-    -p, OPTIONAL. p-value to be used for significance testing of intermediate segments in CBS algorithm. Increase p-value to get finer segments, and decrease p-value for coarser segments. DEFAULT: 0.5
-    -ut, OPTIONAL. threshold for annotating a segment as "unmethylated". DEFAULT: 30
-    -mt, OPTIONAL. threshold for annotating a segment as "methylated". DEFAULT: 70
-    -filt_thresh, OPTIONAL. valid coverage threshold for rejecting/selecting valid CpG sites. DEFAULT: 5
-    -plot, OPTIONAL. make segmentation plots per region? [yes/no], DEFAULT: no
+optional arguments:
+  -h, --help     show this help message and exit
+  -file          modkit filtered input file
+  -o             output file
+  -p             p-value, DEFAULT: 0.5
+  -s             sample name
+  -tfile         target file name
+  -ut            unmethylated threshold for merging segments, DEFAULT: 30
+  -mt            methylated threshold for merging segments, DEFAULT: 70
+  -minCG         minimum count of CpG sites per segment, DEFAULT: 5
+  -filt_thresh   filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 5
+  -plot          make segmentation plots?='yes/no', DEFAULT: no
+  -merge         merge adjacent segments with same label?='yes/no', DEFAULT: yes
 ```
 
 ## `delta` mode
 ```
-python3 scripts/cbs_delta.py --help
+root@3a1373fe279d:/home# python3 /opt/scripts/SegMeth-v1.0/cbs_delta.py --help
 usage: cbs_delta.py [-h] -file  [-file2] -o  [-p] -s  -tfile  [-ut] [-mt] [-minCG] [-filt_thresh] [-plot] [-delta]
 
-    -file,  input mokdit bedMethyl pileup for haplotype-1
-    -file2,  input mokdit bedMethyl pileup for haplotype-2
-    -o, output file name, to be populated with intersected segments
-    -s, sample name
-    -tfile, target file name for generating segments in
-    -p, OPTIONAL. p-value to be used for significance testing of intermediate segments in CBS algorithm. Increase p-value to get finer segments, and decrease p-value for coarser segments. DEFAULT: 0.5
-    -ut, OPTIONAL. threshold for annotating a segment as "allele-specific methylated with hp2-hp1 >= 70". DEFAULT: -70
-    -mt, OPTIONAL. threshold for annotating a segment as "allele-specific methylated with hp1-hp2 >= 70". DEFAULT: 70
-    -filt_thresh, OPTIONAL. valid coverage threshold for rejecting/selecting valid CpG sites. Only CpG sites with valid coverage in both haplotypes will be included for segmentation. DEFAULT: 5
-    -plot, OPTIONAL. make segmentation plots per region? [yes/no], DEFAULT: no
-    -delta, OPTIONAL. Run on delta mode? [YES], or haplotype-specific mode? [NO], DEFAULT: no
+optional arguments:
+  -h, --help     show this help message and exit
+  -file          modkit filtered input file
+  -file2         modkit filtered input file 2 (required for delta methylation)
+  -o             output file
+  -p             p-value, DEFAULT: 0.5
+  -s             sample name
+  -tfile         target file name
+  -ut            unmethylated threshold for merging segments, DEFAULT: 30
+  -mt            methylated threshold for merging segments, DEFAULT: 70
+  -minCG         minimum count of CpG sites per segment, DEFAULT: 5
+  -filt_thresh   filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 3
+  -plot          make segmentation plots?='yes/no', DEFAULT: no
+  -delta         Delta Methylation?='yes/no', DEFAULT: no
 ```
 
 # Test locally
@@ -82,7 +89,7 @@ usage: cbs_delta.py [-h] -file  [-file2] -o  [-p] -s  -tfile  [-ut] [-mt] [-minC
 miniwdl run --as-me -i test.inputs.json wdl/workflow.wdl
 
 ## Test with Toil
-
+toil-wdl-runner wdl/workflow.wdl --inputs test.inputs.json
 
 ```
 # Outputs
