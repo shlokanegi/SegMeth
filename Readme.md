@@ -89,8 +89,8 @@ miniwdl run --as-me -i test.inputs.json wdl/workflow.wdl
 ## Test with Toil
 toil-wdl-runner wdl/workflow.wdl --inputs test.inputs.json
 ```
-# Outputs
 
+# Outputs
 Outputs a bed file containing info about segments in consecutive lines. Each line represents one segment, with the following parameters:-
 
 | column | name                  | description                                                                    | type  |

@@ -2,6 +2,7 @@ version: 1.2
 workflows:
   - name: SegMeth
     subclass: WDL
+    description: Segmentation of methylome using circular binary segmentation.
     primaryDescriptorPath: /wdl/workflow.wdl
     authors:
       - name: Shloka Negi
