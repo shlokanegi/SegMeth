@@ -39,8 +39,11 @@ def transform_pos_neg_array(x):
 
 def calc_segment_mean_from_metadata(neg_sum, neg_cnt, pos_sum, pos_cnt):
     if neg_cnt > pos_cnt:
-        return neg_sum / neg_cnt
-    return pos_sum / pos_cnt
+        return neg_sum / neg_cnt, neg_cnt
+    return pos_sum / pos_cnt, pos_cnt
+
+def calc_z_score(avg_int, cnt_int, avg_total, cnt_total):
+    return (((avg_int - avg_total)**2) / (1/(cnt_int) - 1/(cnt_total)))
 
 
 def cbs_stat(x, x_pos, min_cpgs=5):
@@ -48,7 +51,7 @@ def cbs_stat(x, x_pos, min_cpgs=5):
     Returns t, i0, i1'''
     i0, i1 = 0, 0
     n = len(x)
-    max_abs_mean_diff_yet = 0
+    max_abs_z_score_yet = 0
     truth_neg_cnt_ext = sum(1 for ele in x if ele<0)
     truth_pos_cnt_ext = len(x) - truth_neg_cnt_ext
     truth_pos_seg_sum_ext = sum(ele for ele in x if ele>0)
@@ -74,13 +77,12 @@ def cbs_stat(x, x_pos, min_cpgs=5):
                 pos_cnt_internal += 1
             if j-i < min_cpgs:
                 continue
-            curr_mean_diff = abs(
-                calc_segment_mean_from_metadata(neg_seg_sum_internal, neg_cnt_internal, pos_seg_sum_internal, pos_cnt_internal)
-                - calc_segment_mean_from_metadata(neg_seg_sum_ext, neg_cnt_ext, pos_seg_sum_ext, pos_cnt_ext)
-            )
-            if (max_abs_mean_diff_yet < curr_mean_diff or ((max_abs_mean_diff_yet == curr_mean_diff) and ((j-1-i) > (i1-i0)))):
+            avg_int, cnt_int = calc_segment_mean_from_metadata(neg_seg_sum_internal, neg_cnt_internal, pos_seg_sum_internal, pos_cnt_internal)
+            avg_total, cnt_total = calc_segment_mean_from_metadata(neg_seg_sum_internal + neg_seg_sum_ext, neg_cnt_ext + neg_cnt_internal, pos_seg_sum_ext + pos_seg_sum_internal, pos_cnt_ext + pos_cnt_internal)
+            curr_z_score = calc_z_score(avg_int, cnt_int, avg_total, cnt_total)
+            if (max_abs_z_score_yet < curr_z_score or ((max_abs_z_score_yet == curr_z_score) and ((j-1-i) > (i1-i0)))):
                 i0, i1 = i, j-1
-                max_abs_mean_diff_yet = curr_mean_diff
+                max_abs_z_score_yet = curr_z_score
 
     # Perform independent samples t-test
     t_statistic, p_value = ttest_ind(transform_pos_neg_array(x[i0:(i1+1)]), np.concatenate([transform_pos_neg_array(x[i1+1:n]), transform_pos_neg_array(x[0:i0])]))
@@ -265,7 +267,7 @@ if __name__ == '__main__':
     parser.add_argument("-minCG", metavar='', required=False, default=5, help="minimum count of CpG sites per segment, DEFAULT: 5", type=str)
     parser.add_argument("-filt_thresh", metavar='', required=False, default=5, help="filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 5", type=str)
     parser.add_argument("-plot", metavar='', required=False, default="no", help="make segmentation plots?='yes/no', DEFAULT: no", type=str)
-
+    parser.add_argument("-merge", metavar='', required=False, default="no", help="merge adjacent segments with same label?='yes/no', DEFAULT: yes", type=str)
     args = parser.parse_args()
 
     log.setLevel(logging.INFO)
@@ -297,7 +299,8 @@ if __name__ == '__main__':
 
         L = segment(curr_sample, curr_sample_positions, shuffles=1000, p=args.p, min_cpgs=int(args.minCG))
         S = validate(curr_sample, curr_sample_positions, L, p=args.p)
-        S = merge_segments(S, curr_sample, curr_sample_positions, int(args.ut), int(args.mt))
+        if args.merge == "yes":
+            S = merge_segments(S, curr_sample, curr_sample_positions, int(args.ut), int(args.mt))
 
         for i in range(len(S)-1):
             segment_mean = calculate_segment_mean(curr_sample[S[i]:S[i+1]])
@@ -312,12 +315,20 @@ if __name__ == '__main__':
                 segment_igv_color = [0, 255, 0]
             else:
                 segment_igv_color = [192, 192, 192]
-            seg_off_file_obj.write(chrom_str + "\t" + str(curr_sample_positions[S[i]]) + "\t" + str(curr_sample_positions[S[i+1]-1]+1) + "\t" + target_name + "_" + str(i+1) + "\t" + "0\t.\t" + str(curr_sample_positions[S[i]]) + "\t" + str(curr_sample_positions[S[i+1]-1]+1) + "\t" + str(segment_igv_color[0]) + "," + str(segment_igv_color[1]) + "," + str(segment_igv_color[2]) + "\t" + str(segment_mean) + "\t" + str(S[i+1]-S[i]) + "\n")
+            l_idx, r_idx = curr_sample_positions[S[i]], curr_sample_positions[S[i+1]-1]+1
+            if i==0:
+                l_idx = island_start_pos
+            if i==len(S)-2:
+                r_idx = island_end_pos
+            if (S[i+1]-S[i]) < int(args.minCG):
+                segment_mean = "."
+                segment_igv_color = [255, 255, 0]
+            seg_off_file_obj.write(chrom_str + "\t" + str(l_idx) + "\t" + str(r_idx) + "\t" + target_name + "_" + str(i+1) + "\t" + "0\t.\t" + str(curr_sample_positions[S[i]]) + "\t" + str(curr_sample_positions[S[i+1]-1]+1) + "\t" + str(segment_igv_color[0]) + "," + str(segment_igv_color[1]) + "," + str(segment_igv_color[2]) + "\t" + str(segment_mean) + "\t" + str(S[i+1]-S[i]) + "\n")
         
         if args.plot == "yes":
-            ax = draw_segmented_data(curr_sample,  S, int(args.ut), int(args.mt), title='Circular Binary Segmentation of ' + "cpg" + str(cpg_idx + 1) + ' target region in ' + args.s)
-            ax.get_figure().savefig(args.s + "_" + "cpg" + str(cpg_idx + 1) + "_" + chrom_str + "_" + str(curr_sample_positions[S[0]]) + "_" + str(curr_sample_positions[S[-1]-1]+1) + ".png")
+            ax = draw_segmented_data(curr_sample,  S, int(args.ut), int(args.mt), title='Circular Binary Segmentation of ' + target_name + ' target region in ' + args.s)
+            ax.get_figure().savefig(args.s + "_" + target_name + "_" + chrom_str + "_" + str(island_start_pos) + "_" + str(island_end_pos) + ".png")
     seg_off_file_obj.close()
 
 # Run script:
-# python cbs_hp.py -file HG002_R10_2.chr1.bed -o HG002_chr1_test_segments.bed -p 1e-4 -s HG002_hp2 -tfile presegments_HG002_testing.bed -plot yes -minCG 10
+# python cbs_hp_separate_document.py -file HG002_R10_2.chr1.bed -o HG002_chr1_test_segments.bed -p 1e-4 -s HG002_hp2 -tfile presegments_HG002_testing.bed -plot yes -minCG 10

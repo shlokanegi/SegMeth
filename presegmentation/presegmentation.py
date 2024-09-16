@@ -40,7 +40,3 @@ if __name__ == '__main__':
     presegment(fasta_infile_obj, target_outfile_obj, args.d, args.mc)
     fasta_infile_obj.close()
     target_outfile_obj.close()
-
-
-
-

@@ -303,6 +303,7 @@ if __name__ == '__main__':
     parser.add_argument("-filt_thresh", metavar='', required=False, default=3, help="filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 3", type=str)
     parser.add_argument("-plot", metavar='', required=False, default="no", help="make segmentation plots?='yes/no', DEFAULT: no", type=str)
     parser.add_argument("-delta", metavar='', required=False, default="no", help="Delta Methylation?='yes/no', DEFAULT: no", type=str)
+    parser.add_argument("-merge", metavar='', required=False, default="yes", help="merge adjacent segments with same label?='yes/no', DEFAULT: yes", type=str)
     args = parser.parse_args()
 
     isDelta=False
@@ -349,7 +350,8 @@ if __name__ == '__main__':
         # print()
         L = segment(curr_sample, curr_sample_positions, shuffles=1000, p=args.p, isDelta=isDelta, min_cpgs=int(args.minCG))
         S = validate(curr_sample, curr_sample_positions, L, p=args.p, isDelta=isDelta)
-        S = merge_segments(S, curr_sample, curr_sample_positions, int(args.ut), int(args.mt), isDelta=isDelta)
+        if args.merge == "yes":
+            S = merge_segments(S, curr_sample, curr_sample_positions, int(args.ut), int(args.mt))
 
         for i in range(len(S)-1):
             segment_mean = calculate_segment_mean(curr_sample[S[i]:S[i+1]], isDelta=isDelta)
@@ -380,6 +382,9 @@ if __name__ == '__main__':
                 l_idx = island_start_pos
             if i==len(S)-2:
                 r_idx = island_end_pos
+            if (S[i+1]-S[i]) < int(args.minCG):
+                segment_mean = "."
+                segment_igv_color = [255, 255, 0]
             seg_off_file_obj.write(chrom_str + "\t" + str(l_idx) + "\t" + str(r_idx) + "\t" + target_name + "_" + str(i+1) + "\t" + "0\t.\t" + str(curr_sample_positions[S[i]]) + "\t" + str(curr_sample_positions[S[i+1]-1]+1) + "\t" + str(segment_igv_color[0]) + "," + str(segment_igv_color[1]) + "," + str(segment_igv_color[2]) + "\t" + str(segment_mean) + "\t" + str(S[i+1]-S[i]) + "\n")
         
         if args.plot == "yes":

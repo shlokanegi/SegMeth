@@ -1,0 +1,8 @@
+version: 1.2
+workflows:
+  - name: SegMeth
+    subclass: WDL
+    primaryDescriptorPath: /wdl/workflow.wdl
+    authors:
+      - name: Shloka Negi
+        email: shnegi@ucsc.edu
