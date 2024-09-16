@@ -4,6 +4,8 @@ workflows:
     subclass: WDL
     description: Segmentation of methylome using circular binary segmentation.
     primaryDescriptorPath: /wdl/workflow.wdl
+    testParameterFiles:
+      - path: /test.inputs.json
     authors:
       - name: Shloka Negi
         email: shnegi@ucsc.edu
