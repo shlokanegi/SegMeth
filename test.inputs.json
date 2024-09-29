@@ -3,7 +3,8 @@
     "SegMeth.TARGET_BED": "test/hg38_genome_CGwindows_d300_chr20.bed", 
     "SegMeth.MODKIT_BEDS": [
         "test/HG002_R10_1.chr20.bed",
-        "test/HG002_R10_1.chr20.bed"
+        "test/HG002_R10_2.chr20.bed"
     ], 
-    "SegMeth.REGION_TYPE": "WG"
+    "SegMeth.REGION_TYPE": "WG",
+    "SegMeth.runsegmeth.pval": 0.001
 }

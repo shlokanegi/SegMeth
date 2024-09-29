@@ -34,7 +34,7 @@ python scripts/cbs_hp.py -file test/HG002_2.chr20.bed -o HG002_2_chr20_segments_
 ```
 
 # SegMeth WDL
-SegMeth is also available as a WDL on [dockstore](a link).
+SegMeth is also available as a WDL on [dockstore](https://dockstore.org/workflows/github.com/shlokanegi/SegMeth/SegMeth:master).
 
 ## Docker container
 The `runsegmeth` task of the workflow uses the [quay.io/repository/shnegi/segmeth](quay.io/repository/shnegi/segmeth). It includes both haplotype-specific and delta segmentation scripts (available at `/opt/scripts/SegMeth-v1.0/cbs_hp.py` and `/opt/scripts/SegMeth-v1.0/cbs_delta.py` respectively in the container). It also contains the segment intersection (`/opt/scripts/SegMeth-v1.0/segment_intersection.py`) script to intersect segments across multiple samples to generate a consistent set for performing DMR analysis.
@@ -89,6 +89,11 @@ miniwdl run --as-me -i test.inputs.json wdl/workflow.wdl
 ## Test with Toil
 toil-wdl-runner wdl/workflow.wdl --inputs test.inputs.json
 ```
+
+# TODO
+1. All delta mode to the WDL.
+2. Make p-value, minCpGs, cov argument configurable by user.
+3. Provide optional output of a folder of plot images if user chooses to print segmentation plots.
 
 # Outputs
 Outputs a bed file containing info about segments in consecutive lines. Each line represents one segment, with the following parameters:-

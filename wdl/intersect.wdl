@@ -1,10 +1,10 @@
 version 1.0
 
-workflow SegMeth {
+workflow InterSegMeth {
     meta {
 		author: "Shloka Negi"
 		email: "shnegi@ucsc.edu"
-		description: "Segmentation of methylome using circular binary segmentation (CBS). By default, runs whole-genome."
+		description: "Generates an intersection BED file that combines the SegMeth BED files for multiple samples"
 		}
 
 	parameter_meta {
@@ -32,22 +32,9 @@ workflow SegMeth {
 			modkit_beds=MODKIT_BEDS
 		}
 	}
-
-	call concatenateBed {
-		input:
-		bed1files=flatten(runsegmeth.BED1s),
-		bed2files=flatten(runsegmeth.BED2s),
-		sample=SAMPLE,
-		region_type=REGION_TYPE
-	}
-
-	output {
-		File outBed1 = concatenateBed.concatenatedBed1
-		File outBed2 = concatenateBed.concatenatedBed2
-	}
 }
 
-task runsegmeth {
+task intersect {
 
 	parameter_meta {
 		CPG_VCOV: "(OPTIONAL) filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 3"
@@ -125,7 +112,7 @@ task runsegmeth {
 	runtime {
 		memory: memSizeGB + " GB"
 		disks: "local-disk " + diskSizeGB + " SSD"
-		docker: "quay.io/shnegi/segmeth@sha256:8aa6114bb1a14c8776401aa2a06e048719aa2a1d0cec7a7454d4f0b0506d2ea9"
+		docker: "quay.io/shnegi/segmeth@sha256:9a74121bf8059af720504cdcb74e7ee2248efd4e488af5286a1438971148051e"
 		preemptible: 1
 	}
 }
