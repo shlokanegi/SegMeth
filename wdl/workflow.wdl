@@ -125,7 +125,7 @@ task runsegmeth {
 	runtime {
 		memory: memSizeGB + " GB"
 		disks: "local-disk " + diskSizeGB + " SSD"
-		docker: "quay.io/shnegi/segmeth@sha256:8aa6114bb1a14c8776401aa2a06e048719aa2a1d0cec7a7454d4f0b0506d2ea9"
+		docker: "quay.io/shnegi/segmeth:latest"
 		preemptible: 1
 	}
 }

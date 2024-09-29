@@ -6,5 +6,6 @@
         "test/HG002_R10_2.chr20.bed"
     ], 
     "SegMeth.REGION_TYPE": "WG",
-    "SegMeth.runsegmeth.pval": 0.001
+    "SegMeth.runsegmeth.pval": 0.001,
+    "SegMeth.runsegmeth.merge": "no"
 }
