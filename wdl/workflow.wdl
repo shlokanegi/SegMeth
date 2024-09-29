@@ -50,13 +50,13 @@ workflow SegMeth {
 task runsegmeth {
 
 	parameter_meta {
-		CPG_VCOV: "(OPTIONAL) filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 3"
-		PVAL: "(OPTIONAL) p-value for t-test within CBS. Higher p-value will generate finer segments. DEFAULT: 0.05"
-		MIN_CPG: "(OPTIONAL) minimum count of CpG sites per segment, DEFAULT: 5"
-		MERGE: "(OPTIONAL) merge adjacent segments with same label?='yes/no', DEFAULT: yes"
-		UT: "(OPTIONAL) unmethylated threshold for merging and color-coding segments, DEFAULT: 30"
-		MT: "(OPTIONAL) methylated threshold for merging and color-coding segments, DEFAULT: 70"
-		EXTRA_ARGS: "(OPTIONAL) Can provide any extra arguments"
+		cpg_vcov: "(OPTIONAL) filter threshold of read count for rejecting/selecting CPG sites, DEFAULT: 3"
+		pval: "(OPTIONAL) p-value for t-test within CBS. Higher p-value will generate finer segments. DEFAULT: 0.05"
+		min_cpg: "(OPTIONAL) minimum count of CpG sites per segment, DEFAULT: 5"
+		merge: "(OPTIONAL) merge adjacent segments with same label?='yes/no', DEFAULT: yes"
+		ut: "(OPTIONAL) unmethylated threshold for merging and color-coding segments, DEFAULT: 30"
+		mt: "(OPTIONAL) methylated threshold for merging and color-coding segments, DEFAULT: 70"
+		extraArgs: "(OPTIONAL) Can provide any extra arguments"
     }
 	input {
 		String chrom
