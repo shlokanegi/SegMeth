@@ -180,13 +180,15 @@ def read_array_of_methylation_perc(filepath, filter_thresh=5):
     '''
     Read input from sorted bedmethyl file and create an array with sequence of %methylation. 
     Stores methylation values in the array data. 
-    Methylation values for low-coverage regions (<3 reads are multiplied by -1. 
+    Methylation values for low-coverage regions (<5 reads are multiplied by -1. 
     This improves their isolation and segmentation)
     '''
     # print("Reading CpG array for haplotype-1")
     df = pd.read_csv(filepath, sep="\t", header=None)
     chrom_str = df[0][0]
     data_positions = np.array(df.iloc[:, 1], dtype=np.int64)
+    # Convert column 4 to numeric, invalid parsing will be set as NaN
+    df[4] = pd.to_numeric(df[4], errors='coerce')
     filter_condition = df[4] < filter_thresh
     df.loc[filter_condition, 10] = df.loc[filter_condition, 10]*(-1) - 100
     df = df.iloc[:, 10]
@@ -253,12 +255,12 @@ def merge_segments(segment_boundaries, data, data_positions, unmeth_thresh, meth
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()  
+    parser = argparse.ArgumentParser()
   
     # creating two variables using the add_argument method  
     parser.add_argument("-file", metavar='', required=True, help="modkit filtered input file")
     parser.add_argument("-o", metavar='', required=True, help="output file", type=str)
-    parser.add_argument("-p", metavar='', required=False, default=0.5, help="p-value, DEFAULT: 0.5", type=float)
+    parser.add_argument("-p", metavar='', required=False, default=0.05, help="p-value, DEFAULT: 0.05", type=float)
     parser.add_argument("-s", metavar='', required=True, help="sample name", type=str)
     #parser.add_argument("-t", metavar='', required=True, help="target name", type=str)
     parser.add_argument("-tfile", metavar='', required=True, help="target file name", type=str)
@@ -272,7 +274,7 @@ if __name__ == '__main__':
 
     log.setLevel(logging.INFO)
     # array with delta methylation % from combined
-    sample, sample_positions, chrom_str = read_array_of_methylation_perc(filepath=args.file, filter_thresh=args.filt_thresh)
+    sample, sample_positions, chrom_str = read_array_of_methylation_perc(filepath=args.file, filter_thresh=int(args.filt_thresh))
     seg_off_file_obj = open(args.o, "a")
     
     targets_file_path = args.tfile
@@ -297,17 +299,17 @@ if __name__ == '__main__':
         curr_sample = sample[island_start_cpg_idx: island_end_cpg_idx]
         curr_sample_positions = sample_positions[island_start_cpg_idx: island_end_cpg_idx]
 
-        L = segment(curr_sample, curr_sample_positions, shuffles=1000, p=args.p, min_cpgs=int(args.minCG))
-        S = validate(curr_sample, curr_sample_positions, L, p=args.p)
+        L = segment(curr_sample, curr_sample_positions, shuffles=1000, p=float(args.p), min_cpgs=int(args.minCG))
+        S = validate(curr_sample, curr_sample_positions, L, p=float(args.p))
         if args.merge == "yes":
-            S = merge_segments(S, curr_sample, curr_sample_positions, int(args.ut), int(args.mt))
+            S = merge_segments(S, curr_sample, curr_sample_positions, float(args.ut), float(args.mt))
 
         for i in range(len(S)-1):
             segment_mean = calculate_segment_mean(curr_sample[S[i]:S[i+1]])
-            if segment_mean >= int(args.mt):
+            if segment_mean >= float(args.mt):
                 # methylated
                 segment_igv_color = [255, 0, 0]
-            elif segment_mean <= int(args.ut) and segment_mean >= 0:
+            elif segment_mean <= float(args.ut) and segment_mean >= 0:
                 # unmethylated
                 segment_igv_color = [0, 0, 255]
             elif segment_mean < 0:
@@ -326,7 +328,7 @@ if __name__ == '__main__':
             seg_off_file_obj.write(chrom_str + "\t" + str(l_idx) + "\t" + str(r_idx) + "\t" + target_name + "_" + str(i+1) + "\t" + "0\t.\t" + str(curr_sample_positions[S[i]]) + "\t" + str(curr_sample_positions[S[i+1]-1]+1) + "\t" + str(segment_igv_color[0]) + "," + str(segment_igv_color[1]) + "," + str(segment_igv_color[2]) + "\t" + str(segment_mean) + "\t" + str(S[i+1]-S[i]) + "\n")
         
         if args.plot == "yes":
-            ax = draw_segmented_data(curr_sample,  S, int(args.ut), int(args.mt), title='Circular Binary Segmentation of ' + target_name + ' target region in ' + args.s)
+            ax = draw_segmented_data(curr_sample,  S, float(args.ut), float(args.mt), title='Circular Binary Segmentation of ' + target_name + ' target region in ' + args.s)
             ax.get_figure().savefig(args.s + "_" + target_name + "_" + chrom_str + "_" + str(island_start_pos) + "_" + str(island_end_pos) + ".png")
     seg_off_file_obj.close()
 
