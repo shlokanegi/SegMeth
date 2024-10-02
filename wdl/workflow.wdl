@@ -141,8 +141,8 @@ task concatenateBed {
 	}
 
 	command {
-		cat ${sep=" " bed1files} | sort -k1,1 -k2,2n -k3,3n > ~{sample}.~{region_type}.hp1.bed
-		cat ${sep=" " bed2files} | sort -k1,1 -k2,2n -k3,3n > ~{sample}.~{region_type}.hp2.bed
+		cat ${sep=" " bed1files} | sort -k1,1 -k2,2n -k3,3n > ~{sample}.~{region_type}.segments.hp1.bed
+		cat ${sep=" " bed2files} | sort -k1,1 -k2,2n -k3,3n > ~{sample}.~{region_type}.segments.hp2.bed
 	}
 
 	output {
