@@ -56,7 +56,7 @@ task intersect {
 	runtime {
 		memory: memSizeGB + " GB"
 		disks: "local-disk " + diskSizeGB + " SSD"
-		docker: "quay.io/shnegi/segmeth@sha256:5b8717f483bdada82f41974ab66d26f9ffc5e604594c2d2ab3dfb7aeccf03a94"
+		docker: "quay.io/shnegi/segmeth:latest"
 		preemptible: 1
 	}
 }
