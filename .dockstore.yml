@@ -7,3 +7,10 @@ workflows:
     authors:
       - name: Shloka Negi
         email: shnegi@ucsc.edu
+  - name: SegMethIntersect
+    subclass: WDL
+    description: Generates an intersection BED file that combines the SegMeth BED files for multiple samples
+    primaryDescriptorPath: /wdl/intersect.wdl
+    authors:
+      - name: Shloka Negi
+        email: shnegi@ucsc.edu

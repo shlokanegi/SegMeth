@@ -1,0 +1,8 @@
+{
+    "SegMethIntersect.BEDFILES": [
+        "test/HBCC_81925_FTX.pd_ad.segments.hp1.bed",
+        "test/HBCC_81925_FTX.pd_ad.segments.hp2.bed"
+    ], 
+    "SegMethIntersect.COHORT": "HBCC",
+    "SegMethIntersect.REGION_TYPE": "genes_pd_ad"
+}
